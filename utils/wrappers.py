@@ -31,7 +31,7 @@ class WrapPyTorch(gym.ObservationWrapper):
         #return observation.transpose(2, 0, 1)
         return np.array(observation).transpose(2, 1, 0)
 
-def make_env_a2c_atari(env_id, seed, rank, log_dir):
+def make_env_a3c_atari(env_id, seed, rank, log_dir):
     def _thunk():
         env = make_atari(env_id)
         env.seed(seed + rank)
@@ -49,7 +49,7 @@ def make_env_a2c_atari(env_id, seed, rank, log_dir):
         return env
     return _thunk
 
-def make_env_a2c_smb(env_id, seed, rank, log_dir, dim=42, stack_frames=4, adaptive_repeat=[6], reward_type='none', sticky=0., vid=False, base_dir=''):
+def make_env_a3c_smb(env_id, seed, rank, log_dir, dim=42, stack_frames=4, adaptive_repeat=[6], reward_type='none', sticky=0., vid=False, base_dir=''):
     def _thunk():
         env = gym_super_mario_bros.make(env_id)
         env.seed(seed + rank)

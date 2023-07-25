@@ -19,7 +19,7 @@ from datetime import timedelta
 import os
 import glob
 
-from utils.wrappers import make_env_a2c_smb
+from utils.wrappers import make_env_a3c_smb
 from utils.plot import tb_plot_from_monitor
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 
@@ -42,8 +42,8 @@ parser.add_argument('--adaptive-repeat', nargs='+', type=int, default=[4],
                     help='Possible action repeat values (default: [4])')
 parser.add_argument('--sticky-actions', type=float, default=0.,
                     help='Sticky action probability. I.e. the probability that input is ignored and the previous action is repeated (default: 0.)')
-parser.add_argument('--algo', default='icma2c',
-					help='algorithm to use: icma2c | a2c')
+parser.add_argument('--algo', default='icma3c',
+					help='algorithm to use: icma3c | a3c')
 parser.add_argument('--print-threshold', type=int, default=1,
 					help='print progress and plot every print-threshold timesteps (default: 1)')
 parser.add_argument('--tb-dump', type=int, default=30,
@@ -55,7 +55,7 @@ parser.add_argument('--gamma', type=float, default=0.9,
 parser.add_argument('--num-frames', type=int, default=15e6,
 					help='number of frames to train (default: 1e7)')
 parser.add_argument('--num-steps', type=int, default=50,
-					help='number of forward steps in A2C (default: 50)')
+					help='number of forward steps in a3c (default: 50)')
 parser.add_argument('--num-processes', type=int, default=6,
 					help='how many training CPU processes to use (default: 6)')
 parser.add_argument('--value-loss-coef', type=float, default=1.0,
@@ -87,9 +87,9 @@ parser.add_argument('--render', action='store_true', default=False,
 
 args = parser.parse_args()
 
-if args.algo == 'icma2c':
+if args.algo == 'icma3c':
     from agents.ICM_A3C import Model
-elif args.algo == 'a2c':
+elif args.algo == 'a3c':
     from agents.A3C import Model
 else:
     print("INVALID ALGORITHM. ABORT.")
@@ -119,7 +119,7 @@ config.adaptive_repeat = args.adaptive_repeat #adaptive repeat
 config.recurrent_policy_grad = args.recurrent_policy
 config.gru_size = args.gru_size
 
-#a2c control
+
 config.num_agents=args.num_processes
 config.rollout=args.num_steps
 config.USE_GAE = args.disable_gae
@@ -193,7 +193,7 @@ def train(config):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
 
-    envs = [make_env_a2c_smb(config.env_id, seed, i, log_dir, dim=args.dim, stack_frames=config.stack_frames, adaptive_repeat=config.adaptive_repeat, reward_type=config.reward_type, sticky=args.sticky_actions) for i in range(config.num_agents)]
+    envs = [make_env_a3c_smb(config.env_id, seed, i, log_dir, dim=args.dim, stack_frames=config.stack_frames, adaptive_repeat=config.adaptive_repeat, reward_type=config.reward_type, sticky=args.sticky_actions) for i in range(config.num_agents)]
     envs = SubprocVecEnv(envs)
 
     model = Model(env=envs, config=config, log_dir=base_dir, static_policy=args.inference, tb_writer=writer)
@@ -315,7 +315,7 @@ def test(config):
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
 
-    env = [make_env_a2c_smb(config.env_id, seed, config.num_agents+1, log_dir, dim=args.dim, stack_frames=config.stack_frames, adaptive_repeat=config.adaptive_repeat, reward_type=config.reward_type, sticky=args.sticky_actions, vid=True, base_dir=base_dir)]
+    env = [make_env_a3c_smb(config.env_id, seed, config.num_agents+1, log_dir, dim=args.dim, stack_frames=config.stack_frames, adaptive_repeat=config.adaptive_repeat, reward_type=config.reward_type, sticky=args.sticky_actions, vid=True, base_dir=base_dir)]
     env = SubprocVecEnv(env)
 
 

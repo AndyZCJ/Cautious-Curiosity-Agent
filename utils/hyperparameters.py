@@ -31,7 +31,7 @@ class PolicyConfig(object):
         self.num_mini_batch = 32
         self.ppo_clip_param = 0.1
 
-        #a2c control
+        #a3c control
         self.num_agents=8
         self.rollout=128
         self.USE_GAE = True
